@@ -23,7 +23,7 @@ ai_instruction: Execute tasks top-to-bottom; after completing each task, append 
 - [x] Implement `/game/answer`: validate signed round, update metrics, return correctness and next round (optional).
 - [x] Implement personal sources: top tracks, playlists, saved tracks (guarded by scopes).
 - [x] `/leaderboard/submit` with dedupe (hash key + cooldown) and `/leaderboard/top`.
-- [ ] Metrics counter `/metrics/summary`.
+- [x] Metrics counter `/metrics/summary`.
 - [ ] Prisma schema + migration (Postgres), env parsing, docker-compose (optional).
 
 ## Phase 2 — Frontend (Next.js + Tailwind + SeraUI)

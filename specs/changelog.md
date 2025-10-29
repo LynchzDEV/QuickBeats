@@ -27,3 +27,4 @@ Example:
 - 2025-10-29: [Phase 1] Implemented POST /game/answer with session validation, round verification, score tracking, and correct answer revelation; returns updated score and rounds played.
 - 2025-10-29: [Phase 1] Implemented personal game sources (top-tracks, saved-tracks, playlist) with JWT session authentication, scope guards, and support for different Spotify API response formats; extended /game/session to handle multiple modes.
 - 2025-10-29: [Phase 1] Implemented leaderboard with POST /leaderboard/submit (5-minute cooldown deduplication) and GET /leaderboard/top (mode filter support); created shared session storage, automatic cooldown cleanup, and top 100 ranking with tie-handling.
+- 2025-10-29: [Phase 1] Implemented metrics tracking system with GET /metrics/summary; tracks total games played by mode, score submissions with average/top score, unique players count; integrated with game sessions and leaderboard.
