@@ -101,4 +101,54 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
         source: t.Optional(t.String()),
       }),
     }
+  )
+  // Submit answer for current round
+  .post(
+    "/answer",
+    async ({ body, set }) => {
+      const { sessionId, roundId, choiceId } = body;
+
+      // Get session
+      const session = activeSessions.get(sessionId);
+      if (!session) {
+        set.status = 404;
+        return {
+          error: "Session Not Found",
+          message: "Invalid or expired session",
+        };
+      }
+
+      // Verify round ID matches current round
+      if (session.currentRoundId !== roundId) {
+        set.status = 400;
+        return {
+          error: "Invalid Round",
+          message: "Round ID does not match current session round",
+        };
+      }
+
+      // Check if answer is correct
+      const correct = choiceId === session.correctAnswerId;
+
+      // Update session
+      session.roundsPlayed += 1;
+      if (correct) {
+        session.score += 1;
+      }
+
+      // Return result (no next round for now)
+      return {
+        correct,
+        correctAnswerId: session.correctAnswerId,
+        score: session.score,
+        roundsPlayed: session.roundsPlayed,
+      };
+    },
+    {
+      body: t.Object({
+        sessionId: t.String(),
+        roundId: t.String(),
+        choiceId: t.String(),
+      }),
+    }
   );
