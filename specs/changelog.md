@@ -25,3 +25,4 @@ Example:
 - 2025-10-29: [Phase 1] Implemented /artists/search endpoint with LRU cache (5min TTL), client credentials token management, query validation, and automatic cache expiration cleanup.
 - 2025-10-29: [Phase 1] Implemented POST /game/session (artist mode) with track selection, preview_url filtering, distractor generation, SHA-256 round signing, random 5s preview timing, and session management.
 - 2025-10-29: [Phase 1] Implemented POST /game/answer with session validation, round verification, score tracking, and correct answer revelation; returns updated score and rounds played.
+- 2025-10-29: [Phase 1] Implemented personal game sources (top-tracks, saved-tracks, playlist) with JWT session authentication, scope guards, and support for different Spotify API response formats; extended /game/session to handle multiple modes.
