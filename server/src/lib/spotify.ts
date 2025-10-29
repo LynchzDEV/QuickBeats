@@ -27,9 +27,47 @@ export interface SpotifyTrack {
 export class SpotifyClient {
   private accessToken?: string;
   private tokenExpiry?: number;
+  private static appAccessToken?: string;
+  private static appTokenExpiry?: number;
 
   constructor(accessToken?: string) {
     this.accessToken = accessToken;
+  }
+
+  /**
+   * Get client credentials access token (for public API access)
+   */
+  static async getClientCredentialsToken(): Promise<string> {
+    // Return cached token if still valid
+    if (this.appAccessToken && this.appTokenExpiry && Date.now() < this.appTokenExpiry) {
+      return this.appAccessToken;
+    }
+
+    if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+      throw new Error("Spotify credentials not configured");
+    }
+
+    const response = await fetch(`${SPOTIFY_AUTH_BASE}/api/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`)}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to get client credentials: ${error}`);
+    }
+
+    const data: SpotifyTokenResponse = await response.json();
+    this.appAccessToken = data.access_token;
+    this.appTokenExpiry = Date.now() + data.expires_in * 1000 - 60000; // Refresh 1 min early
+
+    return data.access_token;
   }
 
   /**
