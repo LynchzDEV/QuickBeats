@@ -20,3 +20,4 @@ Example:
 - 2025-10-29: [Phase 0] Added GitHub Actions CI workflow with lint, typecheck, build, and test jobs.
 - 2025-10-29: [Phase 1] Scaffolded Elysia server with health endpoint, environment configuration using Zod, and .env.example template.
 - 2025-10-29: [Phase 1] Added logging middleware for Elysia to track incoming requests with method and path.
+- 2025-10-29: [Phase 1] Added error handler middleware and Elysia built-in validation with TypeBox schemas; tested with validation examples.
