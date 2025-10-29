@@ -28,8 +28,8 @@ ai_instruction: Execute tasks top-to-bottom; after completing each task, append 
 
 ## Phase 2 — Frontend (Next.js + Tailwind + SeraUI)
 
-- [ ] App shell, dark theme tokens, SeraUI setup.
-- [ ] Main page: two CTA cards; **total quizzes** metric.
+- [x] App shell, dark theme tokens, SeraUI setup.
+- [x] Main page: two CTA cards; **total quizzes** metric.
 - [ ] Artist search & pick flow (debounced typeahead).
 - [ ] Game screen: timer, play 5s segment, 3 answer chips, feedback states.
 - [ ] End screen: score summary, local name capture, submit to leaderboard.
