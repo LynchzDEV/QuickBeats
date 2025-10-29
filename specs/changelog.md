@@ -26,3 +26,4 @@ Example:
 - 2025-10-29: [Phase 1] Implemented POST /game/session (artist mode) with track selection, preview_url filtering, distractor generation, SHA-256 round signing, random 5s preview timing, and session management.
 - 2025-10-29: [Phase 1] Implemented POST /game/answer with session validation, round verification, score tracking, and correct answer revelation; returns updated score and rounds played.
 - 2025-10-29: [Phase 1] Implemented personal game sources (top-tracks, saved-tracks, playlist) with JWT session authentication, scope guards, and support for different Spotify API response formats; extended /game/session to handle multiple modes.
+- 2025-10-29: [Phase 1] Implemented leaderboard with POST /leaderboard/submit (5-minute cooldown deduplication) and GET /leaderboard/top (mode filter support); created shared session storage, automatic cooldown cleanup, and top 100 ranking with tie-handling.
