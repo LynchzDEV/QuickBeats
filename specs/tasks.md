@@ -19,7 +19,7 @@ ai_instruction: Execute tasks top-to-bottom; after completing each task, append 
 - [x] Add Zod validation, error formatter, logging middleware.
 - [x] Spotify client: auth URLs, token exchange, refresh flow.
 - [x] Implement `/artists/search` with caching (LRU, TTL).
-- [ ] Implement `/game/session` (artist mode): pick track with `preview_url`, generate 2 distractors, sign round.
+- [x] Implement `/game/session` (artist mode): pick track with `preview_url`, generate 2 distractors, sign round.
 - [ ] Implement `/game/answer`: validate signed round, update metrics, return correctness and next round (optional).
 - [ ] Implement personal sources: top tracks, playlists, saved tracks (guarded by scopes).
 - [ ] `/leaderboard/submit` with dedupe (hash key + cooldown) and `/leaderboard/top`.

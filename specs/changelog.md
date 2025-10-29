@@ -23,3 +23,4 @@ Example:
 - 2025-10-29: [Phase 1] Added error handler middleware and Elysia built-in validation with TypeBox schemas; tested with validation examples.
 - 2025-10-29: [Phase 1] Implemented Spotify OAuth client with authorization flow, token exchange, refresh tokens, and auth routes (/auth/spotify/start, /auth/spotify/callback, /auth/session, /auth/logout); added cookie and JWT support.
 - 2025-10-29: [Phase 1] Implemented /artists/search endpoint with LRU cache (5min TTL), client credentials token management, query validation, and automatic cache expiration cleanup.
+- 2025-10-29: [Phase 1] Implemented POST /game/session (artist mode) with track selection, preview_url filtering, distractor generation, SHA-256 round signing, random 5s preview timing, and session management.
