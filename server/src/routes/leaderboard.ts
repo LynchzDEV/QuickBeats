@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import type { LeaderboardEntry, LeaderboardResponse } from "../types/leaderboard";
 import { activeSessions } from "../lib/sessionStore";
+import { metrics } from "../lib/metrics";
 
 // In-memory storage (in production, use database)
 const leaderboard: LeaderboardEntry[] = [];
@@ -107,6 +108,9 @@ export const leaderboardRoutes = new Elysia({ prefix: "/leaderboard" })
 
       // Add to leaderboard
       leaderboard.push(entry);
+
+      // Record score submission in metrics
+      metrics.recordScoreSubmission(entry.score, entry.name);
 
       // Update cooldown
       submissionCooldowns.set(hash, Date.now());

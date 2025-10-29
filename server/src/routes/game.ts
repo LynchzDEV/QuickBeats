@@ -6,6 +6,7 @@ import { selectTrackWithPreview, createGameRound, mapSpotifyTrack } from "../lib
 import type { GameSession } from "../types/game";
 import { env } from "../config/env";
 import { activeSessions } from "../lib/sessionStore";
+import { metrics } from "../lib/metrics";
 
 export const gameRoutes = new Elysia({ prefix: "/game" })
   .use(cookie())
@@ -136,6 +137,9 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
           currentRoundId: round.roundId,
           correctAnswerId: selectedTrack.id,
         });
+
+        // Record game start in metrics
+        metrics.recordGameStart(mode);
 
         const gameSession: GameSession = {
           sessionId,

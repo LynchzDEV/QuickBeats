@@ -5,6 +5,7 @@ import { authRoutes } from "./routes/auth";
 import { artistRoutes } from "./routes/artists";
 import { gameRoutes } from "./routes/game";
 import { leaderboardRoutes } from "./routes/leaderboard";
+import { metricsRoutes } from "./routes/metrics";
 
 const app = new Elysia()
   .use(logger)
@@ -18,6 +19,7 @@ const app = new Elysia()
   .use(artistRoutes)
   .use(gameRoutes)
   .use(leaderboardRoutes)
+  .use(metricsRoutes)
   .listen(3001);
 
 console.log(`🚀 Server running at http://${app.server?.hostname}:${app.server?.port}`);
