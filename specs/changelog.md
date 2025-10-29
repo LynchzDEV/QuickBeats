@@ -19,3 +19,4 @@ Example:
 - 2025-10-29: [Phase 0] Configured TypeScript strict mode, ESLint with TypeScript plugin, Prettier, and commit hooks (husky + lint-staged).
 - 2025-10-29: [Phase 0] Added GitHub Actions CI workflow with lint, typecheck, build, and test jobs.
 - 2025-10-29: [Phase 1] Scaffolded Elysia server with health endpoint, environment configuration using Zod, and .env.example template.
+- 2025-10-29: [Phase 1] Added logging middleware for Elysia to track incoming requests with method and path.
