@@ -1,4 +1,6 @@
 import { Elysia, t } from "elysia";
+import { cookie } from "@elysiajs/cookie";
+import { jwt } from "@elysiajs/jwt";
 import { SpotifyClient } from "../lib/spotify";
 import { selectTrackWithPreview, createGameRound, mapSpotifyTrack } from "../lib/gameLogic";
 import type { GameSession } from "../types/game";
@@ -17,36 +19,106 @@ const activeSessions = new Map<
 >();
 
 export const gameRoutes = new Elysia({ prefix: "/game" })
-  // Create new game session (Artist Mode)
+  .use(cookie())
+  .use(
+    jwt({
+      name: "jwt",
+      secret: env.SESSION_SECRET || "your-secret-key-change-this",
+    })
+  )
+  // Create new game session
   .post(
     "/session",
-    async ({ body, set }) => {
-      const { mode, artistId } = body;
+    async ({ body, cookie: { session }, jwt, set }) => {
+      const { mode, artistId, playlistId, source } = body;
 
-      if (mode !== "artist") {
+      // Validate mode
+      const validModes = ["artist", "top-tracks", "saved-tracks", "playlist"];
+      if (!validModes.includes(mode)) {
         set.status = 400;
         return {
           error: "Bad Request",
-          message: "Only 'artist' mode is currently supported",
-        };
-      }
-
-      if (!artistId) {
-        set.status = 400;
-        return {
-          error: "Bad Request",
-          message: "artistId is required for artist mode",
+          message: `Invalid mode. Must be one of: ${validModes.join(", ")}`,
         };
       }
 
       try {
-        // Get client credentials token
-        const accessToken = await SpotifyClient.getClientCredentialsToken();
-        const client = new SpotifyClient(accessToken);
+        let accessToken: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let spotifyTracks: any[] = [];
+        let sourceIdentifier: string;
 
-        // Get artist's top tracks
-        const response = await client.getArtistTopTracks(artistId);
-        const spotifyTracks = response.tracks || [];
+        // Handle artist mode (no auth required)
+        if (mode === "artist") {
+          if (!artistId) {
+            set.status = 400;
+            return {
+              error: "Bad Request",
+              message: "artistId is required for artist mode",
+            };
+          }
+
+          // Get client credentials token
+          accessToken = await SpotifyClient.getClientCredentialsToken();
+          const client = new SpotifyClient(accessToken);
+
+          // Get artist's top tracks
+          const response = await client.getArtistTopTracks(artistId);
+          spotifyTracks = response.tracks || [];
+          sourceIdentifier = artistId;
+        }
+        // Handle personal modes (require auth)
+        else {
+          // Verify user authentication
+          if (!session.value) {
+            set.status = 401;
+            return {
+              error: "Unauthorized",
+              message: "Personal modes require Spotify authentication",
+            };
+          }
+
+          // Decode JWT session
+          const payload = await jwt.verify(session.value);
+          if (!payload || !payload.accessToken) {
+            set.status = 401;
+            return {
+              error: "Unauthorized",
+              message: "Invalid or expired session",
+            };
+          }
+
+          accessToken = payload.accessToken;
+          const client = new SpotifyClient(accessToken);
+
+          // Fetch tracks based on mode
+          if (mode === "top-tracks") {
+            const timeRange = source || "medium_term"; // short_term, medium_term, long_term
+            const response = await client.getUserTopTracks(50, timeRange);
+            spotifyTracks = response.items || [];
+            sourceIdentifier = `top-tracks-${timeRange}`;
+          } else if (mode === "saved-tracks") {
+            const response = await client.getUserSavedTracks(50);
+            // Saved tracks response has items with { track: {...} } structure
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            spotifyTracks = (response.items || []).map((item: any) => item.track);
+            sourceIdentifier = "saved-tracks";
+          } else if (mode === "playlist") {
+            if (!playlistId) {
+              set.status = 400;
+              return {
+                error: "Bad Request",
+                message: "playlistId is required for playlist mode",
+              };
+            }
+
+            const response = await client.getPlaylistTracks(playlistId);
+            // Playlist tracks response has items with { track: {...} } structure
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            spotifyTracks = (response.items || []).map((item: any) => item.track);
+            sourceIdentifier = playlistId;
+          }
+        }
 
         // Convert to our Track type
         const tracks = spotifyTracks.map(mapSpotifyTrack);
@@ -58,13 +130,13 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
           set.status = 404;
           return {
             error: "No Preview Available",
-            message: "No tracks with preview URLs found for this artist",
+            message: "No tracks with preview URLs found for this source",
           };
         }
 
         // Create game round
         const secret = env.SESSION_SECRET || "your-secret-key-change-this";
-        const round = await createGameRound(selectedTrack, artistId, secret);
+        const round = await createGameRound(selectedTrack, sourceIdentifier, secret);
 
         // Create session
         const sessionId = crypto.randomUUID();
@@ -76,15 +148,15 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
           correctAnswerId: selectedTrack.id,
         });
 
-        const session: GameSession = {
+        const gameSession: GameSession = {
           sessionId,
-          mode,
+          mode: mode as "artist" | "personal",
           round,
           score: 0,
           roundsPlayed: 0,
         };
 
-        return session;
+        return gameSession;
       } catch (error) {
         console.error("Game session creation error:", error);
         set.status = 500;
@@ -98,6 +170,7 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
       body: t.Object({
         mode: t.String(),
         artistId: t.Optional(t.String()),
+        playlistId: t.Optional(t.String()),
         source: t.Optional(t.String()),
       }),
     }
