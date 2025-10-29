@@ -5,18 +5,7 @@ import { SpotifyClient } from "../lib/spotify";
 import { selectTrackWithPreview, createGameRound, mapSpotifyTrack } from "../lib/gameLogic";
 import type { GameSession } from "../types/game";
 import { env } from "../config/env";
-
-// Store active game sessions (in production, use Redis or database)
-const activeSessions = new Map<
-  string,
-  {
-    mode: string;
-    score: number;
-    roundsPlayed: number;
-    currentRoundId: string;
-    correctAnswerId: string;
-  }
->();
+import { activeSessions } from "../lib/sessionStore";
 
 export const gameRoutes = new Elysia({ prefix: "/game" })
   .use(cookie())
