@@ -16,7 +16,7 @@ ai_instruction: Execute tasks top-to-bottom; after completing each task, append 
 ## Phase 1 — Backend (Elysia)
 
 - [x] Scaffold Elysia app with health endpoint.
-- [ ] Add Zod validation, error formatter, logging middleware.
+- [x] Add Zod validation, error formatter, logging middleware.
 - [ ] Spotify client: auth URLs, token exchange, refresh flow.
 - [ ] Implement `/artists/search` with caching (LRU, TTL).
 - [ ] Implement `/game/session` (artist mode): pick track with `preview_url`, generate 2 distractors, sign round.
