@@ -49,21 +49,43 @@ A music guessing game where you listen to 5-second song clips and guess the trac
 
 3. **Start development servers**
 
+   **Option A: Start both together (recommended)**
+
+   ```bash
+   bun run dev
+   ```
+
+   **Option B: Start separately**
+
    Backend (port 3001):
 
    ```bash
-   bun --cwd server dev
+   bun run dev:server
+   # or: bun --cwd server dev
    ```
 
-   Frontend (port 3002):
+   Frontend (port 3000):
 
    ```bash
-   bun --cwd client dev
+   bun run dev:client
+   # or: bun --cwd client dev
    ```
 
 4. **Open the app**
 
-   Navigate to [http://localhost:3002](http://localhost:3002)
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Production Build
+
+```bash
+# Build both server and client
+bun run build
+
+# Note: Production start has a known issue with port conflicts
+# For now, use development mode or run separately:
+bun --cwd server start  # Server on port 3001
+PORT=3000 bun --cwd client start  # Client on custom port
+```
 
 ## Project Structure
 
