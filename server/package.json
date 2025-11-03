@@ -12,10 +12,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "elysia": "^1.0.0",
-    "zod": "^3.22.4",
     "@elysiajs/cookie": "^0.8.0",
-    "@elysiajs/jwt": "^1.0.0"
+    "@elysiajs/cors": "^1.4.0",
+    "@elysiajs/jwt": "^1.0.0",
+    "elysia": "^1.0.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/bun": "^1.0.0",
