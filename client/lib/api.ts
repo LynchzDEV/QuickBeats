@@ -47,11 +47,36 @@ export const api = {
     return res.json();
   },
 
-  async createGameSession(mode: string, artistId?: string): Promise<GameSession> {
+  async createGameSession(
+    mode: string,
+    artistId?: string,
+    sourceOrPlaylistId?: string
+  ): Promise<GameSession> {
+    const body: {
+      mode: string;
+      artistId?: string;
+      playlistId?: string;
+      source?: string;
+    } = { mode };
+
+    if (artistId) {
+      body.artistId = artistId;
+    }
+
+    // For playlist mode, use playlistId; for top-tracks, use source
+    if (sourceOrPlaylistId) {
+      if (mode === "playlist") {
+        body.playlistId = sourceOrPlaylistId;
+      } else if (mode === "top-tracks") {
+        body.source = sourceOrPlaylistId;
+      }
+    }
+
     const res = await fetch(`${API_BASE}/game/session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode, artistId }),
+      credentials: "include", // Include cookies for auth
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error("Failed to create game session");
     return res.json();
