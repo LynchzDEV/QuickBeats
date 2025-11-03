@@ -30,10 +30,10 @@ ai_instruction: Execute tasks top-to-bottom; after completing each task, append 
 
 - [x] App shell, dark theme tokens, SeraUI setup.
 - [x] Main page: two CTA cards; **total quizzes** metric.
-- [ ] Artist search & pick flow (debounced typeahead).
-- [ ] Game screen: timer, play 5s segment, 3 answer chips, feedback states.
-- [ ] End screen: score summary, local name capture, submit to leaderboard.
-- [ ] Leaderboard page: top entries, tie-handling visuals.
+- [x] Artist search & pick flow (debounced typeahead).
+- [x] Game screen: timer, play 5s segment, 3 answer chips, feedback states.
+- [x] End screen: score summary, local name capture, submit to leaderboard.
+- [x] Leaderboard page: top entries, tie-handling visuals.
 - [ ] OAuth start/callback wiring for Spotify mode; mode selector for sources.
 
 ## Phase 3 — Quality & Guardrails
