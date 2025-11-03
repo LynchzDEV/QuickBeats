@@ -43,6 +43,8 @@ export default function ArtistSearchPage() {
       setSelectedArtist(artist);
       try {
         const session = await api.createGameSession("artist", artist.id);
+        // Store session data in sessionStorage
+        sessionStorage.setItem("currentGameSession", JSON.stringify(session));
         // Navigate to game with session data
         router.push(
           `/game?sessionId=${session.sessionId}&mode=artist&artistName=${encodeURIComponent(artist.name)}`
