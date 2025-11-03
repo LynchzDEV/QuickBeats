@@ -30,5 +30,3 @@ const app = new Elysia()
   .listen(3001);
 
 console.log(`🚀 Server running at http://${app.server?.hostname}:${app.server?.port}`);
-
-export default app;
