@@ -33,12 +33,34 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
       }
 
       try {
-        let accessToken: string;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let spotifyTracks: any[] = [];
         let sourceIdentifier: string;
 
-        // Handle artist mode (no auth required)
+        // All modes now require user authentication to get preview URLs
+        // Verify user authentication
+        if (!session.value) {
+          set.status = 401;
+          return {
+            error: "Unauthorized",
+            message: "Spotify authentication required to access preview URLs",
+          };
+        }
+
+        // Decode JWT session
+        const payload = await jwt.verify(session.value);
+        if (!payload || !payload.accessToken) {
+          set.status = 401;
+          return {
+            error: "Unauthorized",
+            message: "Invalid or expired session",
+          };
+        }
+
+        const accessToken = payload.accessToken;
+        const client = new SpotifyClient(accessToken);
+
+        // Handle artist mode
         if (mode === "artist") {
           if (!artistId) {
             set.status = 400;
@@ -48,39 +70,13 @@ export const gameRoutes = new Elysia({ prefix: "/game" })
             };
           }
 
-          // Get client credentials token
-          accessToken = await SpotifyClient.getClientCredentialsToken();
-          const client = new SpotifyClient(accessToken);
-
-          // Get artist's top tracks
+          // Get artist's top tracks using user token (provides preview URLs)
           const response = await client.getArtistTopTracks(artistId);
           spotifyTracks = response.tracks || [];
           sourceIdentifier = artistId;
         }
-        // Handle personal modes (require auth)
+        // Handle personal modes
         else {
-          // Verify user authentication
-          if (!session.value) {
-            set.status = 401;
-            return {
-              error: "Unauthorized",
-              message: "Personal modes require Spotify authentication",
-            };
-          }
-
-          // Decode JWT session
-          const payload = await jwt.verify(session.value);
-          if (!payload || !payload.accessToken) {
-            set.status = 401;
-            return {
-              error: "Unauthorized",
-              message: "Invalid or expired session",
-            };
-          }
-
-          accessToken = payload.accessToken;
-          const client = new SpotifyClient(accessToken);
-
           // Fetch tracks based on mode
           if (mode === "top-tracks") {
             const timeRange = source || "medium_term"; // short_term, medium_term, long_term
