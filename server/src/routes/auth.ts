@@ -14,7 +14,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     })
   )
   // Start Spotify OAuth flow
-  .get("/spotify/start", () => {
+  .get("/spotify/start", ({ set }) => {
     // Generate random state for CSRF protection
     const state = crypto.randomUUID();
 
@@ -23,7 +23,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
     // Redirect to Spotify authorization
     const authUrl = SpotifyClient.getAuthUrl(state);
-    return Response.redirect(authUrl, 302);
+    set.redirect = authUrl;
+    return;
   })
   // Handle Spotify OAuth callback
   .get(
@@ -74,7 +75,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
         // Redirect to frontend with success
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-        return Response.redirect(`${frontendUrl}?auth=success`, 302);
+        set.redirect = `${frontendUrl}?auth=success`;
+        return;
       } catch (err) {
         console.error("Token exchange error:", err);
         set.status = 500;
