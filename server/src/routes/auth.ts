@@ -3,6 +3,7 @@ import { cookie } from "@elysiajs/cookie";
 import { jwt } from "@elysiajs/jwt";
 import { SpotifyClient } from "../lib/spotify";
 import { env } from "../config/env";
+import { oauthStateStore } from "../lib/oauthStateStore";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
   .use(cookie())
@@ -13,26 +14,21 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     })
   )
   // Start Spotify OAuth flow
-  .get("/spotify/start", ({ cookie: { oauth_state }, set }) => {
+  .get("/spotify/start", () => {
     // Generate random state for CSRF protection
     const state = crypto.randomUUID();
 
-    // Store state in cookie for validation
-    oauth_state.set({
-      value: state,
-      httpOnly: true,
-      maxAge: 600, // 10 minutes
-      sameSite: "lax",
-    });
+    // Store state server-side (works across localhost and ngrok)
+    oauthStateStore.set(state, state, 10 * 60 * 1000); // 10 minutes
 
     // Redirect to Spotify authorization
     const authUrl = SpotifyClient.getAuthUrl(state);
-    set.redirect = authUrl;
+    return Response.redirect(authUrl, 302);
   })
   // Handle Spotify OAuth callback
   .get(
     "/spotify/callback",
-    async ({ query, cookie: { oauth_state, session }, jwt, set }) => {
+    async ({ query, cookie: { session }, jwt, set }) => {
       const { code, state, error } = query;
 
       // Handle authorization errors
@@ -44,7 +40,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       }
 
       // Validate state parameter (CSRF protection)
-      if (!state || state !== oauth_state.value) {
+      const storedState = state ? oauthStateStore.get(state) : null;
+      if (!state || !storedState || state !== storedState) {
         set.status = 400;
         return {
           error: "Invalid state",
@@ -52,8 +49,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         };
       }
 
-      // Clear state cookie
-      oauth_state.remove();
+      // Clear state from store
+      oauthStateStore.delete(state);
 
       // Exchange code for tokens
       try {
@@ -76,7 +73,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         });
 
         // Redirect to frontend with success
-        set.redirect = `http://localhost:3000?auth=success`;
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        return Response.redirect(`${frontendUrl}?auth=success`, 302);
       } catch (err) {
         console.error("Token exchange error:", err);
         set.status = 500;
